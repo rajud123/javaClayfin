@@ -1,0 +1,187 @@
+ServletConfig :
+------------------
+1. ServletConfig Object is the object of the java class ie implementing  javax.servlet.ServletConfig object
+2. It is 1 per serlvet/jsp component
+3. Servlet Container creates object for this object during server startup on one per servlet basis.
+4. This object is used to pass inputs to servlet component from web.xml file or we can get info about our component like name of the component.
+
+How to create ServletConfig  object:
+---------------------------------------------	
+ServletConfig sc = this.getServletConfig();
+
+when to use:
+---------------
+if any specific content is modified from time to time we can modify that information through web.xml file without modifying the java class.
+
+ServletContext :
+-------------------
+1. It is based on one per application.
+2. It is like a global memory ie the data kept in this object is avilable for all servlet components.
+3. Servlet Container creates object for this object during server startup on one per applicationbasis.
+4.ServletContext object means it is the object of a class ie imleneting javax.servlet.ServletContext interface.
+
+How to create ServletContext object:
+---------------------------------------------	
+ServletContext sc = this.getServletContext();
+ServletContext sc = request.getServletContext();
+ServletContext sc =  this.getServletConfig().getServletContext();
+
+when to use:
+---------------
+If we want to share common inforation to all servlets then we can go for ServletContext object.
+
+  String scheme = req.getScheme();             // http
+  String serverName = req.getServerName();     // hostname.com
+  int serverPort = req.getServerPort();        // 80
+  String contextPath = req.getContextPath();   // /mywebapp
+  String servletPath = req.getServletPath();   // /servlet/MyServle
+
+
+Structure of Http Response :
+----------------------------------
+Http response is a combination of three things.
+1. A status line
+2. Header information
+3. message body(optional)
+
+Status Line:
+--------------
+Status Line contains name of protocol with version followed by HTTP status code.
+eg: HTTP/1.1 200 OK
+
+Header Information:
+------------------------
+        what is a Header ? : A Header is an additional piece of information that can be 
+	sent by a client or by the server, this information is used to tells about the 	additional piece of information that is sent either by client/server for 	effective communication.
+
+	Example 1: User-Agent header
+
+		Sent by the client
+		Tells the server about the client's setup (browser, OS etc.)
+		Mostly used to improve client experience, e.g. tailoring 		responses for mobile devices or dealing with browser 		compatibility issues
+	Example 2: set-cookie header
+
+		Sent by the server
+		Tells the browser to set a cookie
+
+message body :
+------------------
+This can be referred to as resoponse body.
+
+package com.raju.login;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.Enumeration;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+@WebServlet("/LoginServer")
+public class LoginServer extends HttpServlet {
+	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+	}
+
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+
+		PrintWriter writer = response.getWriter();
+		
+		ServletConfig sc = this.getServletConfig();
+		System.out.println("servlet name"+sc.getServletName());//fully qualified classname
+		
+		System.out.println(sc.getInitParameter("username"));
+		System.out.println(sc.getServletContext().getInitParameter("dname"));
+		
+		String name = request.getParameter("user");
+		String pass = request.getParameter("password");
+		request.setAttribute("name", "user name is: "+name);
+		request.setAttribute("pass","password is: "+ pass);
+		Enumeration<String> headerNames = request.getHeaderNames();
+		
+		//Returns an enumeration of all the header names this request contains. If the request has no headers, this method returns an empty enumeration.
+		while(headerNames.hasMoreElements()) {
+			System.out.println(headerNames.nextElement());
+		}
+		
+		String url = request.getServletPath();
+		System.out.println("servlet path"+url);//servlet url
+		
+		System.out.println("response headers");
+		Collection<String> headerNames2 = response.getHeaderNames();
+		headerNames2.forEach(System.out::println);
+		
+		 String requestURI = request.getRequestURI();
+		 System.out.println("URI"+requestURI);//applicationname/servlet-url
+		request.getRequestDispatcher("index.jsp").forward(request, response);
+		
+		doGet(request, response);
+	}
+
+}
+
+index.jsp
+======
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<form action="LoginServer" method="post"> 
+<label>User name</label>
+<input type="text" name="user"><br>
+<label>Password</label>
+<input type="password" name="password">
+<br>
+<input type="submit" value="login">
+</form>
+
+<h3> ${name}</h3>
+<h3> ${pass}</h3>
+</body>
+</html>
+
+
+web.xml
+======
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" id="WebApp_ID" version="4.0">
+  <display-name>LoginServlet</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  
+  <servlet>
+  <servlet-name>login</servlet-name>
+  <servlet-class>LoginServer</servlet-class>
+  
+  <init-param>  
+<param-name>username</param-name>  
+<param-value>system</param-value>  
+</init-param>  
+  </servlet>
+  
+  
+  <context-param>  
+<param-name>dname</param-name>  
+<param-value>sun.jdbc.odbc.JdbcOdbcDriver</param-value>  
+</context-param>  
+</web-app>
