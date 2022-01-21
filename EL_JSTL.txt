@@ -1,0 +1,148 @@
+Expression Language:
+-------------------------
+anything that evalutes to some value at the end can be placed inside the EL tags, these tags evalutes the but also write the output to browser the advantage of using these tags is to reduce writing java code inside jsp.
+
+EL is composed of 3 parts :
+	1. EL operators
+	2. EL implicit objects
+	3. EL functions
+
+EL operators:
+----------------
+=>same as java operators but some operators are having english words.
+
+'<'  ==>  lt
+'>' ==> gt
+'<=' ==> le
+'>=' ==> ge
+'!=' ==> ne
+'==' ==> eq
+etc.,
+
+EL implicit objects:
+-----------------------
+EL gives 10 implicit objects additionally which are used to make jsp as java code less page these are
+=>pageScope, requestScope, sessionScope, applicationScope, header, headerValue, param, paramValus, initParam, cookie.
+
+xxsScope: 
+------------
+-> to read data from different scopes and write data to browser.
+syntax : ${xxxScope.<attribute>}
+
+param, paramValues :
+--------------------------
+=> given to read and display request parameter values.
+alternate to 'request.getParameter("param-name")'
+syntax : ${param.<param-name>}
+
+=>to read multiple values like data like checkbox or muti-select box
+syntax : ${paramValues.param-name[0]}, ${paramValues.param-name[1]}...
+
+header, headerValues :
+---------------------------
+given to read and display header values, like browser headers
+syntax : ${header['hader-name']} e: ${header['user-agent']}
+->alternate request.getHeaderName("header-name")
+
+syntax : ${headerValues.headerName[0]} eg: ${headerValues.accpet[0]}
+
+initParam :
+-------------
+given to read and display context params(global init params) from xml file
+syntax: ${initParam.context-paramName}
+eg : ${initParam.dbuser} 
+
+
+JSTL (JSP Standard Tag Library)
+========================
+gives bunch of JSTL tags gives support to work withtakes control flow statements.
+
+JTSL is having 5 tag libraries each having sepcific taglib uri :
+i. Core(for control flow)
+ii. sql(for db interaction)
+iii. formating (for i18n)
+iv. xml(for xml processing)
+v. functions(for string manipulations)
+
+JSTL core tag library:
+--------------------------
+c:set :
+------
+to define variable with data having scope.
+eg: <c:set var="msg" value="welcome" scope="request">
+
+c:out
+------
+ to evaluate experssion and write output to browser.
+ <c:out value = "${value}"/>
+
+eg:  <c:out value = "${msg}"/>
+
+c:if
+-----
+allows to perform traditional if condition there is no <c:else> tag.
+eg: <c:if test="!empty param.uname">
+	<c:out value="${msg}">
+      </c:if>
+
+<c:choose>, <c:when>, <c:otherwise>
+----------------------------------------------
+To bring the effect of if --else if --else 
+eg:
+<c:choose>
+  <c:when test="${param.val>0}">
+        ${param.val} is positive
+  </c:when>
+   <c:when test="${param.val<0}">
+        ${param.val} is negative
+  </c:when>
+  <c:otherwise>
+     ${param.val} is zero
+  </c:otherwise>
+</c:choose>
+
+<c:forEach>
+--------------
+eg: String Ss[]={"a", "b", "c"};
+<%
+request.setAttribute("ss",Ss);
+%>
+<c:forEach var name="item" items="ss">
+   <c:out value="${requestScope.ss}">
+</c:forEach>
+
+<c:forTokens>
+-----------------
+given to split string into multiple parts based on given delimeter
+eg:
+<c:set var="msg" value="hi, how are you" scope="request">
+<c:forTokens var="val" items="${msg}" delims=" ">
+        ${val}
+</c:forTokens>
+
+<c:url>, <c:redirect>
+-------------------------
+to define a url, redirect that url.
+<c:url var="googleUrl" value="https://google.com" scope="request">
+<c:redirect url="${googleUrl}"/>
+
+<c:import>
+--------------
+To import one jsp/html file into another jsp file
+start of file
+<c:import url="somejspfile.jsp"/>
+end of file
+
+<c:catch>
+-----------
+given for catching and handling exceptions
+<c:catch var="e">
+<%
+int x=Integer.parseInt("10");
+%>
+x value is <%=x %>
+</c:catch>
+<c:if test="e ne null>
+  the raised excption is ${e}
+</c:if>
+
